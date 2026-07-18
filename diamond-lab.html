@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diamond Lab by Dr. Sara — Certified Lab-Grown Diamonds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Jost:wght@200;300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            /* ── Extracted from reference gradient image ── */
+            teal: {
+              deepest: '#000D0A',   /* near-black top */
+              deep:    '#071A14',   /* very dark teal */
+              dark:    '#0D2B20',   /* deep emerald */
+              mid:     '#1A4A38',   /* mid emerald */
+              muted:   '#2C6652',   /* muted teal-green */
+              light:   '#3D7D65',   /* lighter turquoise-green */
+            },
+            gold: {
+              DEFAULT: '#C9A84C',
+              light:   '#DEC070',
+              dark:    '#A8872A',
+              pale:    '#EDD898',
+              faint:   '#F5EECC',
+            },
+            cream: '#FAF7F0',
+            ivory: '#F5F0E8',
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', 'serif'],
+            heading: ['"Playfair Display"', 'serif'],
+            body: ['Jost', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       CSS CUSTOM PROPERTIES — Extracted from reference
+       ══════════════════════════════════════════════════ */
+    :root {
+      /* Color system from the gradient reference image */
+      --teal-deepest: #000D0A;
+      --teal-deep:    #071A14;
+      --teal-dark:    #0D2B20;
+      --teal-mid:     #1A4A38;
+      --teal-muted:   #2C6652;
+      --teal-light:   #3D7D65;
+
+      /* Gold/champagne from logo */
+      --gold:         #C9A84C;
+      --gold-light:   #DEC070;
+      --gold-dark:    #A8872A;
+      --gold-pale:    #EDD898;
+      --gold-faint:   #F5EECC;
+
+      --cream:  #FAF7F0;
+      --ivory:  #F5F0E8;
+
+      /* ── Reference-accurate page gradient ── */
+      --bg-gradient: linear-gradient(
+        180deg,
+        var(--teal-deepest)  0%,
+        var(--teal-deep)     12%,
+        var(--teal-dark)     28%,
+        var(--teal-mid)      52%,
+        var(--teal-muted)    72%,
+        var(--teal-light)    100%
+      );
+    }
+
+    /* ══════════════════════════════════════════════════
+       RESET & BASE
+       ══════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-gradient);
+      background-attachment: fixed;   /* keeps gradient reference-accurate on scroll */
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── Subtle grain overlay (same as original) ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.30;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--teal-deepest); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+    /* ══════════════════════════════════════════════════
+       ARABIC / RTL SUPPORT
+       ══════════════════════════════════════════════════ */
+    html[dir="rtl"] *:not(.keep-latin) {
+      font-family: 'Tajawal', sans-serif !important;
+    }
+    html[dir="rtl"] .hero-title em,
+    html[dir="rtl"] .shimmer-text {
+      font-style: normal !important;
+    }
+
+    /* ══════════════════════════════════════════════════
+       VIEW SYSTEM (SPA routing — unchanged logic)
+       ══════════════════════════════════════════════════ */
+    .view { display: none; opacity: 0; transition: opacity 0.5s ease; }
+    .view.active { display: block; animation: fadeIn 0.55s ease forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════════════════════════
+       NAVIGATION
+       ══════════════════════════════════════════════════ */
+    .nav-link {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(201, 168, 76, 0.65);
+      transition: color 0.3s;
+      position: relative;
+      padding-bottom: 2px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover,
+    .nav-link.active-nav { color: var(--gold); }
+    .nav-link:hover::after,
+    .nav-link.active-nav::after { width: 100%; }
+
+    /* ══════════════════════════════════════════════════
+       LANGUAGE SWITCHER
+       ══════════════════════════════════════════════════ */
+    .lang-switch {
+      display: flex;
+      align-items: center;
+      border: 1px solid rgba(201, 168, 76, 0.28);
+      overflow: hidden;
+    }
+    .lang-btn {
+      font-family: 'Jost', sans-serif;
+      font-weight: 400;
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      padding: 0.35rem 0.65rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(201, 168, 76, 0.55);
+      transition: all 0.25s;
+    }
+    .lang-btn.lang-active {
+      background: var(--gold);
+      color: var(--teal-deepest);
+    }
+    .lang-btn:not(.lang-active):hover { color: var(--gold); }
+
+    /* ══════════════════════════════════════════════════
+       LOGO IMAGE — replaces all CSS/SVG/canvas marks
+       ══════════════════════════════════════════════════ */
+    .logo-img {
+      width: 230px;
+      max-height: 74px;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Mobile: slightly smaller logo, still wide */
+    @media (max-width: 640px) {
+      .logo-img { width: 168px; max-height: 56px; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       DECORATIVE HELPERS
+       ══════════════════════════════════════════════════ */
+    .gold-line {
+      width: 60px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 0 auto;
+    }
+    .gold-line-full {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+    }
+
+    /* Art Deco corner frame */
+    .deco-frame { position: relative; }
+    .deco-frame::before, .deco-frame::after,
+    .deco-frame > .corner-br, .deco-frame > .corner-tl {
+      content: '';
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: rgba(201, 168, 76, 0.4);
+      border-style: solid;
+    }
+    .deco-frame::before  { top: 8px;    left: 8px;  border-width: 1px 0 0 1px; }
+    .deco-frame::after   { top: 8px;    right: 8px; border-width: 1px 1px 0 0; }
+    .deco-frame > .corner-br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+    .deco-frame > .corner-tl { bottom: 8px; left: 8px;  border-width: 0 0 1px 1px; }
+
+    .diamond-icon {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--gold);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════════════
+       HERO TYPOGRAPHY
+       ══════════════════════════════════════════════════ */
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.1;
+      color: var(--cream);
+    }
+    .hero-subtitle {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-size: 0.65rem;
+    }
+    @media (max-width: 768px) {
+      .hero-title { font-size: clamp(2.5rem, 8vw, 5rem); }
+    }
+
+    /* ══════════════════════════════════════════════════
+       SHIMMER ANIMATION
+       ══════════════════════════════════════════════════ */
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+    .shimmer-text {
+      background: linear-gradient(
+        90deg,
+        var(--gold)       0%,
+        var(--gold-faint) 40%,
+        var(--gold)       60%,
+        var(--gold-faint) 100%
+      );
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 5s ease infinite;
+    }
+
+    /* ══════════════════════════════════════════════════
+       PRODUCT CARDS
+       ══════════════════════════════════════════════════ */
+    .product-card {
+      background: rgba(26, 74, 56, 0.22);
+      border: 1px solid rgba(201, 168, 76, 0.14);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .product-card:hover {
+      border-color: rgba(201, 168, 76, 0.45);
+      background: rgba(44, 102, 82, 0.32);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45),
+                  0 0 0 1px rgba(201, 168, 76, 0.2);
+    }
+    .product-card .img-wrap {
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+    }
+    .product-card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s ease;
+    }
+    .product-card:hover img { transform: scale(1.06); }
+
+    /* ══════════════════════════════════════════════════
+       CATEGORY FILTER
+       ══════════════════════════════════════════════════ */
+    .cat-btn {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(201, 168, 76, 0.55);
+      background: transparent;
+      border: 1px solid rgba(201, 168, 76, 0.22);
+      padding: 0.55rem 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    .cat-btn:hover { border-color: rgba(201, 168, 76, 0.5); color: var(--gold); }
+    .cat-btn.cat-active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--teal-deepest);
+    }
+
+    /* ══════════════════════════════════════════════════
+       EDUCATION CARDS
+       ══════════════════════════════════════════════════ */
+    .edu-card {
+      border: 1px solid rgba(201, 168, 76, 0.17);
+      background: rgba(13, 43, 32, 0.65);
+      backdrop-filter: blur(8px);
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .edu-card:hover {
+      border-color: rgba(201, 168, 76, 0.42);
+      transform: translateY(-3px);
+    }
+
+    /* ══════════════════════════════════════════════════
+       HERO BACKGROUND — tinted radial glow
+       ══════════════════════════════════════════════════ */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse at 30% 50%, rgba(61, 125, 101, 0.22) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(201, 168, 76, 0.07) 0%, transparent 50%),
+        transparent;
+    }
+
+    /* ══════════════════════════════════════════════════
+       CTA BUTTONS
+       ══════════════════════════════════════════════════ */
+    .wa-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--teal-deepest);
+      font-family: 'Jost', sans-serif;
+      font-weight: 400;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.85rem 2.2rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
+    .wa-btn:hover {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201, 168, 76, 0.32);
+    }
+
+    /* Back navigation button */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(201, 168, 76, 0.65);
+      font-family: 'Jost', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .back-btn:hover { color: var(--gold); }
+    .back-btn svg { transition: transform 0.3s; }
+    .back-btn:hover svg { transform: translateX(-3px); }
+    html[dir="rtl"] .back-btn:hover svg { transform: translateX(3px); }
+
+    /* ══════════════════════════════════════════════════
+       FLOATING PARTICLES
+       ══════════════════════════════════════════════════ */
+    .particle {
+      position: absolute;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      animation: float-up linear infinite;
+    }
+    @keyframes float-up {
+      0%   { opacity: 0; transform: translateY(0) scale(0); }
+      20%  { opacity: 0.6; }
+      80%  { opacity: 0.3; }
+      100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
+    }
+
+    /* ══════════════════════════════════════════════════
+       COLLECTION HEADER
+       ══════════════════════════════════════════════════ */
+    .collection-header-line {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .collection-header-line::before,
+    .collection-header-line::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+    }
+    .collection-header-line::before {
+      background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.38));
+    }
+    .collection-header-line::after {
+      background: linear-gradient(90deg, rgba(201, 168, 76, 0.38), transparent);
+    }
+
+    /* Product detail image */
+    .product-detail-img {
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    /* ══════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════ */
+    footer {
+      background: rgba(0, 13, 10, 0.9);
+      border-top: 1px solid rgba(201, 168, 76, 0.14);
+    }
+    .footer-link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.78rem;
+      color: rgba(201, 168, 76, 0.62);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-link:hover { color: var(--gold); }
+
+    /* ══════════════════════════════════════════════════
+       MOBILE MENU
+       ══════════════════════════════════════════════════ */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: flex; }
+
+    /* ══════════════════════════════════════════════════
+       SECTION BACKGROUND OVERLAYS
+       ══════════════════════════════════════════════════ */
+    .section-dark  { background: rgba(0, 13, 10, 0.55); }
+    .section-mid   { background: rgba(13, 43, 32, 0.45); }
+    .section-deep  { background: rgba(7, 26, 20, 0.70); }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════
+       NAVIGATION
+       ══════════════════════════════════════════════════ -->
+  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+       style="background: rgba(0,13,10,0.88); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(201,168,76,0.12);">
+    <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+
+      <!-- LOGO — using the uploaded real logo image -->
+      <button onclick="showView('home')" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;">
+        <img
+          src="logo%20hor.jpeg"
+          alt="Diamond Lab by Dr. Sara"
+          class="logo-img"
+        />
+      </button>
+
+      <!-- Desktop nav links -->
+      <div class="hidden md:flex items-center gap-6">
+        <button class="nav-link active-nav" onclick="showView('home')" id="nav-home" data-i18n="navHome">Home</button>
+        <button class="nav-link" onclick="showView('collection')" id="nav-collection" data-i18n="navCollection">Collection</button>
+        <div style="width:1px;height:16px;background:rgba(201,168,76,0.2);"></div>
+        <a href="https://www.instagram.com/diamond.lab.official" target="_blank" rel="noopener"
+           class="nav-link keep-latin" style="display:flex;align-items:center;gap:0.4rem;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+          </svg>
+          @diamond.lab.official
+        </a>
+        <div class="lang-switch">
+          <button class="lang-btn" id="lang-btn-en" onclick="setLanguage('en')">EN</button>
+          <button class="lang-btn" id="lang-btn-ar" onclick="setLanguage('ar')">AR</button>
+        </div>
+      </div>
+
+      <!-- Hamburger -->
+      <button id="hamburger" onclick="toggleMobile()"
+              class="md:hidden flex flex-col gap-1.5 p-2"
+              style="background:none;border:none;cursor:pointer;">
+        <span class="block w-5 h-px transition-all" style="background:var(--gold);"></span>
+        <span class="block w-4 h-px transition-all" style="background:var(--gold);margin-left:4px;"></span>
+        <span class="block w-5 h-px transition-all" style="background:var(--gold);"></span>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="flex-col px-6 pb-4 gap-4 md:hidden"
+         style="border-top:1px solid rgba(201,168,76,0.1);">
+      <button class="nav-link pt-3" onclick="showView('home');toggleMobile()" data-i18n="navHome">Home</button>
+      <button class="nav-link" onclick="showView('collection');toggleMobile()" data-i18n="navCollection">Collection</button>
+      <a href="https://www.instagram.com/diamond.lab.official" target="_blank"
+         class="nav-link keep-latin" style="display:flex;align-items:center;gap:0.4rem;">Instagram</a>
+      <div class="lang-switch" style="width:fit-content;">
+        <button class="lang-btn" id="lang-btn-en-m" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" id="lang-btn-ar-m" onclick="setLanguage('ar')">AR</button>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════════════
+       HOME VIEW
+       ══════════════════════════════════════════════════ -->
+  <div id="view-home" class="view active">
+
+    <!-- Hero -->
+    <section class="hero-bg relative min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden">
+      <div id="particles" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+
+      <!-- Top ornament -->
+      <div class="absolute top-24 left-1/2 -translate-x-1/2 flex items-center gap-3" style="opacity:0.4;">
+        <div class="gold-line" style="width:40px;margin:0;"></div>
+        <div class="diamond-icon"></div>
+        <div class="gold-line" style="width:40px;margin:0;"></div>
+      </div>
+
+      <div style="max-width:680px;padding-top:80px;">
+        <p class="hero-subtitle mb-6" id="hero-subtitle" style="animation:fadeIn 0.8s 0.2s both;" data-i18n="heroSubtitle">Luxury Made by Science</p>
+
+        <h1 class="hero-title mb-4" id="hero-title"
+            style="font-size:clamp(3.5rem,8vw,7rem);animation:fadeIn 0.8s 0.4s both;">
+          Certified<br />
+          <em style="color:var(--gold);font-style:italic;">Lab-Grown</em><br />
+          Diamonds
+        </h1>
+
+        <div class="gold-line mb-6" style="animation:fadeIn 0.8s 0.6s both;"></div>
+
+        <p id="hero-tagline" style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.8rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(250,247,240,0.45);animation:fadeIn 0.8s 0.8s both;" data-i18n="heroTagline">
+          IGI &nbsp;·&nbsp; 18K Gold &nbsp;·&nbsp; Damascus, Syria
+        </p>
+
+        <div class="flex items-center justify-center gap-4 mt-10 flex-wrap"
+             style="animation:fadeIn 0.8s 1s both;">
+          <button onclick="showView('collection')" class="wa-btn" data-i18n="exploreBtn">Explore Collection</button>
+          <a id="hero-inquire-link" href="#"
+             target="_blank"
+             style="display:inline-flex;align-items:center;gap:0.5rem;border:1px solid rgba(201,168,76,0.3);padding:0.85rem 2rem;font-family:'Jost',sans-serif;font-weight:300;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);transition:all 0.3s;text-decoration:none;"
+             onmouseover="this.style.background='rgba(201,168,76,0.08)'"
+             onmouseout="this.style.background='transparent'"
+             data-i18n="inquireBtn">
+            Inquire Now
+          </a>
+        </div>
+      </div>
+
+      <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+        <div style="font-family:'Jost',sans-serif;font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);" data-i18n="scrollLabel">Scroll</div>
+        <div style="width:1px;height:40px;background:linear-gradient(to bottom,var(--gold),transparent);"></div>
+      </div>
+    </section>
+
+    <!-- Promise -->
+    <section class="py-24 px-6 section-dark">
+      <div class="max-w-4xl mx-auto text-center">
+        <p class="hero-subtitle mb-4" data-i18n="promiseSubtitle">Our Promise</p>
+        <h2 id="promise-heading" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(2rem,5vw,3.5rem);color:var(--cream);line-height:1.3;margin-bottom:1.5rem;">
+          Every stone tells a story of <em style="color:var(--gold);">precision</em> and <em style="color:var(--gold);">purity</em>
+        </h2>
+        <div class="gold-line mb-6"></div>
+        <p style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.9rem;color:rgba(250,247,240,0.55);line-height:2;max-width:560px;margin:0 auto;letter-spacing:0.05em;" data-i18n="promiseBody">
+          Diamond Lab by Dr. Sara brings IGI-certified lab-grown diamonds crafted with scientific precision.
+          Identical in every way to mined diamonds — chemically, physically, optically — at a fraction of the environmental cost.
+        </p>
+      </div>
+    </section>
+
+    <!-- Education section -->
+    <section class="py-24 px-6 section-mid">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+          <p class="hero-subtitle mb-3" data-i18n="eduSubtitle">Knowledge is Clarity</p>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(1.8rem,4vw,3rem);color:var(--cream);" data-i18n="eduHeading">
+            Understanding Your Diamond
+          </h2>
+          <div class="gold-line mt-4"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Card 1 -->
+          <div class="edu-card p-8 text-center">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.3rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:0.75rem;" data-i18n="edu1Title">Natural vs Lab-Grown</h3>
+            <p style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.82rem;color:rgba(250,247,240,0.55);line-height:1.9;" data-i18n="edu1Desc">
+              Lab-grown diamonds share the same atomic structure, refractive index, and hardness (10 on Mohs) as natural diamonds. The only difference is origin — and price.
+            </p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="edu-card p-8 text-center">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.3rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:0.75rem;" data-i18n="edu2Title">Diamond vs Moissanite</h3>
+            <p style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.82rem;color:rgba(250,247,240,0.55);line-height:1.9;" data-i18n="edu2Desc">
+              Moissanite is silicon carbide; a diamond simulant with higher fire but lower hardness (9.25). Our lab-grown diamonds are real diamonds — certified and permanent.
+            </p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="edu-card p-8 text-center">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.3rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:0.75rem;" data-i18n="edu3Title">The Perfect Solitaire</h3>
+            <p style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.82rem;color:rgba(250,247,240,0.55);line-height:1.9;" data-i18n="edu3Desc">
+              A solitaire setting places one magnificent stone at the center of all attention. Clean, timeless, and endlessly symbolic — it lets the diamond speak for itself.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured collection -->
+    <section class="py-24 px-6 section-deep">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+          <p class="hero-subtitle mb-3" data-i18n="featuredSubtitle">Featured Pieces</p>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(1.8rem,4vw,3rem);color:var(--cream);" data-i18n="featuredHeading">
+            The Collection
+          </h2>
+          <div class="gold-line mt-4"></div>
+        </div>
+
+        <div id="featured-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12"></div>
+
+        <div class="text-center">
+          <button onclick="showView('collection')" class="wa-btn" data-i18n="viewFullBtn">View Full Collection</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- IGI certification -->
+    <section class="py-20 px-6" style="background:rgba(0,13,10,0.75);">
+      <div class="max-w-3xl mx-auto">
+        <div class="deco-frame p-10 text-center" style="border:1px solid rgba(201,168,76,0.2);">
+          <div class="corner-br"></div><div class="corner-tl"></div>
+          <p class="hero-subtitle mb-4" data-i18n="certSubtitle">Certification & Trust</p>
+          <h2 class="shimmer-text keep-latin"
+              style="font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(1.5rem,4vw,2.8rem);margin-bottom:1.5rem;" data-i18n="certHeading">
+            IGI Certified
+          </h2>
+          <p style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.82rem;color:rgba(250,247,240,0.5);line-height:2;letter-spacing:0.05em;" data-i18n="certBody">
+            Every diamond in our collection is independently graded by the International Gemological Institute (IGI) —
+            the world's leading authority on lab-grown diamonds. Your certificate guarantees cut, color, clarity, and carat.
+          </p>
+          <div style="display:flex;justify-content:center;gap:2rem;margin-top:2rem;flex-wrap:wrap;">
+            <div class="text-center">
+              <div class="shimmer-text keep-latin" style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;">4C</div>
+              <div style="font-family:'Jost',sans-serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,168,76,0.48);margin-top:0.25rem;" data-i18n="certStat1Label">Grading Standard</div>
+            </div>
+            <div style="width:1px;background:rgba(201,168,76,0.14);"></div>
+            <div class="text-center">
+              <div class="shimmer-text keep-latin" style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;">IGI</div>
+              <div style="font-family:'Jost',sans-serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,168,76,0.48);margin-top:0.25rem;" data-i18n="certStat2Label">Certified</div>
+            </div>
+            <div style="width:1px;background:rgba(201,168,76,0.14);"></div>
+            <div class="text-center">
+              <div class="shimmer-text keep-latin" style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;">18K</div>
+              <div style="font-family:'Jost',sans-serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,168,76,0.48);margin-top:0.25rem;" data-i18n="certStat3Label">Fine Gold Settings</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /view-home -->
+
+
+  <!-- ══════════════════════════════════════════════════
+       COLLECTION VIEW
+       ══════════════════════════════════════════════════ -->
+  <div id="view-collection" class="view">
+    <div style="min-height:100vh;padding-top:80px;">
+
+      <div class="py-20 px-6 text-center"
+           style="background:radial-gradient(ellipse at center, rgba(61,125,101,0.16) 0%, transparent 70%);">
+        <div class="collection-header-line mb-4">
+          <span id="collection-title" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(2rem,5vw,4rem);color:var(--cream);white-space:nowrap;" data-i18n="collectionTitle">The Collection</span>
+        </div>
+        <p style="font-family:'Jost',sans-serif;font-size:0.62rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(201,168,76,0.52);" data-i18n="collectionSubtitle">Eleven Signature Pieces · IGI Certified Lab-Grown Diamonds</p>
+        <div class="gold-line mt-6"></div>
+
+        <div id="category-filters" class="flex items-center justify-center gap-3 flex-wrap mt-10"></div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-6 pb-24">
+        <div id="collection-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+    </div>
+  </div><!-- /view-collection -->
+
+
+  <!-- Product detail views injected by JS -->
+  <div id="product-views-container"></div>
+
+
+  <!-- ══════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════ -->
+  <footer class="py-16 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="gold-line-full mb-12"></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+
+        <!-- Brand column -->
+        <div>
+          <div class="mb-4">
+            <img src="logo%20hor.jpeg" alt="Diamond Lab by Dr. Sara" style="width:220px;height:auto;object-fit:contain;" />
+          </div>
+          <p style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.78rem;color:rgba(250,247,240,0.38);line-height:2;max-width:260px;" data-i18n="footerTagline">
+            Luxury lab-grown diamond jewelry. IGI certified. Scientifically crafted, eternally beautiful.
+          </p>
+        </div>
+
+        <!-- Location column -->
+        <div>
+          <h4 style="font-family:'Jost',sans-serif;font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(201,168,76,0.48);margin-bottom:1rem;" data-i18n="footerLocationTitle">Location</h4>
+          <p id="footer-city" style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:rgba(250,247,240,0.68);line-height:1.8;" data-i18n="heroTaglineCity">Damascus, Syria</p>
+          <p style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.78rem;color:rgba(250,247,240,0.38);margin-top:0.3rem;" data-i18n="footerAddress">Al-Jisr Al-Abiad – Nouri Pasha</p>
+          <a id="footer-map-link" href="https://maps.app.goo.gl/waFejns4iRn1x8T99?g_st=aw" target="_blank" rel="noopener" class="footer-link" style="margin-top:0.75rem;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span data-i18n="footerMap">Get Directions</span>
+          </a>
+        </div>
+
+        <!-- Connect column -->
+        <div>
+          <h4 style="font-family:'Jost',sans-serif;font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(201,168,76,0.48);margin-bottom:1rem;" data-i18n="footerConnectTitle">Connect</h4>
+          <div class="flex flex-col gap-3">
+            <a href="https://www.instagram.com/diamond.lab.official" target="_blank" rel="noopener" class="footer-link keep-latin">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+              </svg>
+              @diamond.lab.official
+            </a>
+            <a href="https://wa.me/963943992103" target="_blank" class="footer-link">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+              <span data-i18n="footerWhatsapp">WhatsApp Inquiry</span>
+            </a>
+            <a href="mailto:diamond.lab963@outlook.com" class="footer-link keep-latin">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="M2 6l10 7 10-7"/>
+              </svg>
+              <span>diamond.lab963@outlook.com</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gold-line-full mb-6"></div>
+
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <p style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.62rem;letter-spacing:0.1em;color:rgba(250,247,240,0.22);" data-i18n="footerCopyright">
+          © 2025 Diamond Lab by Dr. Sara. All rights reserved.
+        </p>
+        <div class="flex items-center gap-2">
+          <div class="diamond-icon" style="width:5px;height:5px;opacity:0.38;"></div>
+          <span style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.62rem;letter-spacing:0.15em;color:rgba(250,247,240,0.22);" data-i18n="footerBadge">IGI CERTIFIED · LUXURY MADE BY SCIENCE</span>
+          <div class="diamond-icon" style="width:5px;height:5px;opacity:0.38;"></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ══════════════════════════════════════════════════
+       JAVASCRIPT
+       ══════════════════════════════════════════════════ -->
+  <script>
+    /* ══════════════════════════════════════════════════
+       CONTACT CONSTANTS
+       ══════════════════════════════════════════════════ */
+    const WHATSAPP_NUMBER = '963943992103';
+    const CONTACT_EMAIL   = 'diamond.lab963@outlook.com';
+    const MAPS_LINK       = 'https://maps.app.goo.gl/waFejns4iRn1x8T99?g_st=aw';
+
+    /* ══════════════════════════════════════════════════
+       TRANSLATIONS
+       ══════════════════════════════════════════════════ */
+    const translations = {
+      en: {
+        navHome: "Home",
+        navCollection: "Collection",
+        heroSubtitle: "Luxury Made by Science",
+        heroLine1: "Certified",
+        heroLine2: "Lab-Grown",
+        heroLine3: "Diamonds",
+        heroTagline: "IGI  ·  18K Gold  ·  Damascus, Syria",
+        heroTaglineCity: "Damascus, Syria",
+        exploreBtn: "Explore Collection",
+        inquireBtn: "Inquire Now",
+        scrollLabel: "Scroll",
+        promiseSubtitle: "Our Promise",
+        promiseHeadingPre: "Every stone tells a story of ",
+        promiseHeadingMid: " and ",
+        promiseHeadingWord1: "precision",
+        promiseHeadingWord2: "purity",
+        promiseBody: "Diamond Lab by Dr. Sara brings IGI-certified lab-grown diamonds crafted with scientific precision. Identical in every way to mined diamonds — chemically, physically, optically — at a fraction of the environmental cost.",
+        eduSubtitle: "Knowledge is Clarity",
+        eduHeading: "Understanding Your Diamond",
+        edu1Title: "Natural vs Lab-Grown",
+        edu1Desc: "Lab-grown diamonds share the same atomic structure, refractive index, and hardness (10 on Mohs) as natural diamonds. The only difference is origin — and price.",
+        edu2Title: "Diamond vs Moissanite",
+        edu2Desc: "Moissanite is silicon carbide; a diamond simulant with higher fire but lower hardness (9.25). Our lab-grown diamonds are real diamonds — certified and permanent.",
+        edu3Title: "The Perfect Solitaire",
+        edu3Desc: "A solitaire setting places one magnificent stone at the center of all attention. Clean, timeless, and endlessly symbolic — it lets the diamond speak for itself.",
+        featuredSubtitle: "Featured Pieces",
+        featuredHeading: "The Collection",
+        viewFullBtn: "View Full Collection",
+        certSubtitle: "Certification & Trust",
+        certHeading: "IGI Certified",
+        certBody: "Every diamond in our collection is independently graded by the International Gemological Institute (IGI) — the world's leading authority on lab-grown diamonds. Your certificate guarantees cut, color, clarity, and carat.",
+        certStat1Label: "Grading Standard",
+        certStat2Label: "Certified",
+        certStat3Label: "Fine Gold Settings",
+        collectionTitle: "The Collection",
+        collectionSubtitle: "Eleven Signature Pieces · IGI Certified Lab-Grown Diamonds",
+        viewDetails: "View Details",
+        customTitle: "Custom Creation",
+        customDesc: "Have a design in mind? We craft bespoke pieces tailored to your vision.",
+        customBtn: "Inquire via WhatsApp",
+        backToCollection: "Back to Collection",
+        specifications: "Specifications",
+        inquireWhatsapp: "Inquire via WhatsApp",
+        followInstagram: "Follow on Instagram",
+        madeToOrder: "🔒 All pieces are made-to-order. Inquire for sizing, availability, and custom options.",
+        continueBrowsing: "Continue Browsing",
+        youMayAlsoLove: "You May Also Love",
+        footerTagline: "Luxury lab-grown diamond jewelry. IGI certified. Scientifically crafted, eternally beautiful.",
+        footerLocationTitle: "Location",
+        footerAddress: "Al-Jisr Al-Abiad – Nouri Pasha",
+        footerConnectTitle: "Connect",
+        footerWhatsapp: "WhatsApp Inquiry",
+        footerMap: "Get Directions",
+        footerCopyright: "© 2025 Diamond Lab by Dr. Sara. All rights reserved.",
+        footerBadge: "IGI CERTIFIED · LUXURY MADE BY SCIENCE",
+        igiCertifiedBadge: "IGI Certified",
+        genericWaMessage: "Hello, I'm interested in Diamond Lab by Dr. Sara",
+        customWaMessage: "Hello, I'd like a custom piece from Diamond Lab by Dr. Sara",
+        catAll: "All",
+        catRings: "Rings",
+        catBracelets: "Bracelets",
+        catNecklaces: "Necklaces",
+        catEarrings: "Earrings",
+        catSets: "Collections & Sets",
+        brandLabel: "Diamond Lab",
+      },
+      ar: {
+        navHome: "الرئيسية",
+        navCollection: "المجموعة",
+        heroSubtitle: "فخامة من صنع العلم",
+        heroLine1: "ألماس",
+        heroLine2: "مخبري",
+        heroLine3: "معتمد",
+        heroTagline: "IGI  ·  ذهب عيار 18  ·  دمشق، سوريا",
+        heroTaglineCity: "دمشق، سوريا",
+        exploreBtn: "استكشف المجموعة",
+        inquireBtn: "استفسر الآن",
+        scrollLabel: "مرري للأسفل",
+        promiseSubtitle: "وعدنا لكِ",
+        promiseHeadingPre: "كل حجر يحكي قصة من ",
+        promiseHeadingMid: " و",
+        promiseHeadingWord1: "الدقة",
+        promiseHeadingWord2: "النقاء",
+        promiseBody: "دار Diamond Lab by Dr. Sara تقدّم ألماساً مخبرياً معتمداً من IGI، مصنوعاً بدقة علمية فائقة. مطابق تماماً للألماس الطبيعي كيميائياً وفيزيائياً وبصرياً، بجزء يسير من الأثر البيئي.",
+        eduSubtitle: "المعرفة وضوح",
+        eduHeading: "تعرّفي على ألماسك",
+        edu1Title: "طبيعي مقابل مخبري",
+        edu1Desc: "يشترك الألماس المخبري مع الألماس الطبيعي في نفس البنية الذرية، ومعامل الانكسار، والصلابة (10 على مقياس موس). الفرق الوحيد هو المنشأ — والسعر.",
+        edu2Title: "الألماس مقابل الموزنايت",
+        edu2Desc: "الموزنايت هو كربيد السيليكون؛ بديل للألماس بلمعان أعلى لكن بصلابة أقل (9.25). ألماسنا المخبري ألماس حقيقي — معتمد ودائم.",
+        edu3Title: "السوليتير المثالي",
+        edu3Desc: "يضع تصميم السوليتير حجراً واحداً رائعاً في مركز الاهتمام. تصميم نظيف وخالد ورمزي بلا حدود، يترك للألماس أن يتحدث عن نفسه.",
+        featuredSubtitle: "قطع مميزة",
+        featuredHeading: "المجموعة",
+        viewFullBtn: "عرض المجموعة الكاملة",
+        certSubtitle: "الشهادة والثقة",
+        certHeading: "معتمد من IGI",
+        certBody: "يتم تقييم كل ألماسة في مجموعتنا بشكل مستقل من قبل المعهد الدولي لعلم الأحجار الكريمة (IGI)، المرجع الأول عالمياً للألماس المخبري. تضمن شهادتك القصة واللون والنقاء والقيراط.",
+        certStat1Label: "معيار التقييم",
+        certStat2Label: "معتمد",
+        certStat3Label: "إعدادات ذهب فاخرة",
+        collectionTitle: "المجموعة",
+        collectionSubtitle: "إحدى عشرة قطعة مميزة · ألماس مخبري معتمد من IGI",
+        viewDetails: "عرض التفاصيل",
+        customTitle: "تصميم مخصص",
+        customDesc: "لديكِ تصميم في بالك؟ نصنع قطعاً مخصصة تناسب رؤيتك.",
+        customBtn: "استفسري عبر واتساب",
+        backToCollection: "العودة إلى المجموعة",
+        specifications: "المواصفات",
+        inquireWhatsapp: "استفسري عبر واتساب",
+        followInstagram: "تابعينا على إنستغرام",
+        madeToOrder: "🔒 جميع القطع تُصنع حسب الطلب. استفسري عن المقاس والتوفر والخيارات المخصصة.",
+        continueBrowsing: "تابعي التصفح",
+        youMayAlsoLove: "قد يعجبكِ أيضاً",
+        footerTagline: "مجوهرات ألماس مخبري فاخرة. معتمدة من IGI. مصنوعة بدقة علمية، وجمال خالد.",
+        footerLocationTitle: "الموقع",
+        footerAddress: "الجسر الأبيض – نوري باشا",
+        footerConnectTitle: "تواصل معنا",
+        footerWhatsapp: "استفسار عبر واتساب",
+        footerMap: "احصلي على الاتجاهات",
+        footerCopyright: "© 2025 Diamond Lab by Dr. Sara. جميع الحقوق محفوظة.",
+        footerBadge: "معتمد من IGI · فخامة من صنع العلم",
+        igiCertifiedBadge: "معتمد من IGI",
+        genericWaMessage: "مرحباً، أنا مهتمة بـ Diamond Lab by Dr. Sara",
+        customWaMessage: "مرحباً، أرغب بقطعة مخصصة من Diamond Lab by Dr. Sara",
+        catAll: "الكل",
+        catRings: "خواتم",
+        catBracelets: "أساور",
+        catNecklaces: "قلائد",
+        catEarrings: "أقراط",
+        catSets: "مجموعات وأطقم",
+        brandLabel: "Diamond Lab",
+      }
+    };
+
+    let currentLang = (function () {
+      try { return localStorage.getItem('dlLang') || 'en'; } catch (e) { return 'en'; }
+    })();
+    let currentView = 'home';
+    let currentCategoryFilter = 'all';
+
+    function t(key) {
+      return (translations[currentLang] && translations[currentLang][key] !== undefined)
+        ? translations[currentLang][key]
+        : (translations.en[key] || key);
+    }
+
+    /* ── Categories ── */
+    const categories = [
+      { key: 'all',        labelKey: 'catAll' },
+      { key: 'rings',      labelKey: 'catRings' },
+      { key: 'bracelets',  labelKey: 'catBracelets' },
+      { key: 'necklaces',  labelKey: 'catNecklaces' },
+      { key: 'earrings',   labelKey: 'catEarrings' },
+      { key: 'sets',       labelKey: 'catSets' },
+    ];
+
+    /* ── Product Data (bilingual) ── */
+    const products = {
+      quintet: {
+        id: 'quintet', image: '1000115273.jpg', categoryKey: 'rings', featured: true,
+        name_en: 'The Quintet Band', name_ar: 'خاتم كوينتيت',
+        tagline_en: 'Five Diamonds. One Eternal Statement.', tagline_ar: 'خمسة ألماسات، بيان أبدي واحد.',
+        type_en: 'Band', type_ar: 'باند',
+        summary_en: '1.5 ct · 5 Diamonds · 18K White Gold', summary_ar: '1.5 قيراط · 5 ألماسات · ذهب أبيض عيار 18',
+        description_en: 'Five perfectly matched round-brilliant diamonds, each selected for harmonious colour and clarity, are set shoulder to shoulder in a shared prong band of 18-carat white gold. The result is a continuous arc of brilliant light that wears equally well alone or stacked.',
+        description_ar: 'خمس ألماسات مستديرة اللمعان متطابقة بعناية، اختيرت لانسجام لونها ونقائها، ورُصعت جنباً إلى جنب في خاتم باند من الذهب الأبيض عيار 18. النتيجة قوس متواصل من البريق يليق بالارتداء منفرداً أو مع خواتم أخرى.',
+        specs: [
+          { l: 'Total Carat Weight', la: 'الوزن الإجمالي بالقيراط', v: '1.5 ct', va: '1.5 قيراط' },
+          { l: 'Diamond Count', la: 'عدد الألماس', v: '5 Stones', va: '5 أحجار' },
+          { l: 'Cut', la: 'القصة', v: 'Round Brilliant', va: 'مستدير لامع' },
+          { l: 'Setting', la: 'التثبيت', v: 'Shared Prong', va: 'مخالب مشتركة' },
+          { l: 'Metal', la: 'المعدن', v: '18K White Gold', va: 'ذهب أبيض عيار 18' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Quintet Band (1.5ct · 18K White Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بخاتم The Quintet Band (1.5 قيراط · ذهب أبيض عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      celestial: {
+        id: 'celestial', image: '1000115275.jpg', categoryKey: 'rings', featured: true,
+        name_en: 'The Celestial Halo', name_ar: 'هالة سيليستيال',
+        tagline_en: 'A Universe of Brilliance on One Finger.', tagline_ar: 'كون من البريق على إصبع واحد.',
+        type_en: 'Halo Ring', type_ar: 'خاتم هالة',
+        summary_en: '1 ct + Halo · 18K White Gold', summary_ar: '1 قيراط + هالة · ذهب أبيض عيار 18',
+        description_en: 'A luminous one-carat round-cut diamond is crowned by a scintillating micro-pavé halo of approximately 0.25 carats, set in cool, polished 18-karat white gold. The halo multiplies the apparent size of the centre stone while the pavé band carries light from every angle.',
+        description_ar: 'ألماسة مستديرة مضيئة بوزن قيراط واحد تعلوها هالة مرصعة بدقة من نحو 0.25 قيراط، مثبتة في ذهب أبيض لامع عيار 18. تضاعف الهالة الحجم الظاهري للحجر المركزي بينما يحمل الخاتم البريق من كل زاوية.',
+        specs: [
+          { l: 'Centre Stone', la: 'الحجر المركزي', v: '1 ct Round-Cut', va: '1 قيراط مستدير' },
+          { l: 'Halo Weight', la: 'وزن الهالة', v: '~0.25 ct', va: '~0.25 قيراط' },
+          { l: 'Total Diamond Weight', la: 'الوزن الإجمالي للألماس', v: '~1.25 ct', va: '~1.25 قيراط' },
+          { l: 'Setting', la: 'التثبيت', v: 'Micro-Pavé Halo', va: 'هالة مرصعة دقيقة' },
+          { l: 'Metal', la: 'المعدن', v: '18K White Gold', va: 'ذهب أبيض عيار 18' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Celestial Halo (1ct + Halo · 18K White Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بخاتم The Celestial Halo (1 قيراط + هالة · ذهب أبيض عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      gilded: {
+        id: 'gilded', image: '1000115277.jpg', categoryKey: 'rings', featured: true,
+        name_en: 'The Gilded Cushion', name_ar: 'جيلديد كوشن',
+        tagline_en: 'Warmth, Softness, and Timeless Glamour.', tagline_ar: 'دفء ونعومة وسحر خالد.',
+        type_en: 'Halo Ring', type_ar: 'خاتم هالة',
+        summary_en: '1 ct Cushion + Halo · 18K Yellow Gold', summary_ar: '1 قيراط كوشن + هالة · ذهب أصفر عيار 18',
+        description_en: "The cushion cut's soft corners and vintage romance are amplified by a square halo of round brilliants and a pavé-set shank, all in warm 18-karat yellow gold. An Art Deco soul with modern brilliance — The Gilded Cushion is the statement ring for the woman who loves gold.",
+        description_ar: 'زوايا القصة الوسادية الناعمة ورومانسيتها الكلاسيكية تتضاعف بهالة مربعة من الألماس اللامع وحزام مرصع، جميعها في ذهب أصفر دافئ عيار 18. روح آرت ديكو ببريق عصري — جيلديد كوشن هو الخاتم المفضل لعاشقات الذهب.',
+        specs: [
+          { l: 'Centre Stone', la: 'الحجر المركزي', v: '1 ct Cushion-Cut', va: '1 قيراط قصة وسادية' },
+          { l: 'Halo Weight', la: 'وزن الهالة', v: '~0.25 ct', va: '~0.25 قيراط' },
+          { l: 'Total Diamond Weight', la: 'الوزن الإجمالي', v: '~1.25 ct', va: '~1.25 قيراط' },
+          { l: 'Setting', la: 'التثبيت', v: 'Cushion Halo Pavé', va: 'هالة وسادية مرصعة' },
+          { l: 'Metal', la: 'المعدن', v: '18K Yellow Gold', va: 'ذهب أصفر عيار 18' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Gilded Cushion (1ct Cushion · 18K Yellow Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بخاتم The Gilded Cushion (1 قيراط كوشن · ذهب أصفر عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      golden: {
+        id: 'golden', image: '1000115279.jpg', categoryKey: 'rings', featured: false,
+        name_en: 'The Golden Solitaire', name_ar: 'غولدن سوليتير',
+        tagline_en: 'Classic Strength. Luminous Warmth.', tagline_ar: 'قوة كلاسيكية، دفء مضيء.',
+        type_en: 'Solitaire', type_ar: 'سوليتير',
+        summary_en: '1 ct Round · 18K Yellow Gold', summary_ar: '1 قيراط مستدير · ذهب أصفر عيار 18',
+        description_en: 'One diamond. No distractions. A one-carat round brilliant set in a classic four-prong solitaire of rich 18-karat yellow gold. The cathedral shank elevates the stone gracefully above the finger, allowing maximum light to enter from all sides. Timeless, warm, and utterly confident.',
+        description_ar: 'ألماسة واحدة، بلا تشتيت. ألماسة مستديرة لامعة بوزن قيراط واحد مثبتة بأربع مخالب كلاسيكية في ذهب أصفر غني عيار 18. يبرز الحزام المرتفع الحجر بأناقة ويتيح دخول أقصى قدر من الضوء من كل الجهات. تصميم خالد ودافئ وواثق تماماً.',
+        specs: [
+          { l: 'Centre Stone', la: 'الحجر المركزي', v: '1 ct Round-Cut', va: '1 قيراط مستدير' },
+          { l: 'Setting', la: 'التثبيت', v: '4-Prong Solitaire', va: 'سوليتير 4 مخالب' },
+          { l: 'Shank', la: 'الحزام', v: 'Tapered Cathedral', va: 'مرتفع ومدبب' },
+          { l: 'Metal', la: 'المعدن', v: '18K Yellow Gold', va: 'ذهب أصفر عيار 18' },
+          { l: 'Finish', la: 'اللمسة', v: 'High Polish', va: 'تلميع عالي' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Golden Solitaire (1ct · 18K Yellow Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بخاتم The Golden Solitaire (1 قيراط · ذهب أصفر عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      pure: {
+        id: 'pure', image: '1000115281.jpg', categoryKey: 'rings', featured: false,
+        name_en: 'The Pure Solitaire', name_ar: 'بيور سوليتير',
+        tagline_en: 'Nothing Else. Just the Diamond.', tagline_ar: 'لا شيء آخر. الألماس فقط.',
+        type_en: 'Solitaire', type_ar: 'سوليتير',
+        summary_en: '1 ct Round · 18K White Gold', summary_ar: '1 قيراط مستدير · ذهب أبيض عيار 18',
+        description_en: "The original. The ideal. A one-carat round-cut diamond in a four-prong solitaire of pristine 18-karat white gold. Pure in concept, flawless in execution. The white gold enhances the diamond's colourless brilliance, making every facet appear more vivid and alive.",
+        description_ar: 'الأصل. المثال. ألماسة مستديرة بوزن قيراط واحد في خاتم سوليتير 4 مخالب من ذهب أبيض نقي عيار 18. نقاء في الفكرة، وإتقان في التنفيذ. يبرز الذهب الأبيض صفاء لون الألماس، فيبدو كل سطح أكثر حيوية وتألقاً.',
+        specs: [
+          { l: 'Centre Stone', la: 'الحجر المركزي', v: '1 ct Round-Cut', va: '1 قيراط مستدير' },
+          { l: 'Setting', la: 'التثبيت', v: '4-Prong Solitaire', va: 'سوليتير 4 مخالب' },
+          { l: 'Shank', la: 'الحزام', v: 'Tapered Cathedral', va: 'مرتفع ومدبب' },
+          { l: 'Metal', la: 'المعدن', v: '18K White Gold', va: 'ذهب أبيض عيار 18' },
+          { l: 'Finish', la: 'اللمسة', v: 'High Polish', va: 'تلميع عالي' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Pure Solitaire (1ct · 18K White Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بخاتم The Pure Solitaire (1 قيراط · ذهب أبيض عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      chainsBracelet: {
+        id: 'chainsBracelet', image: 'cb.jpeg', categoryKey: 'bracelets', featured: false,
+        name_en: 'The Chains Bracelet', name_ar: 'سوار الحلقات',
+        tagline_en: 'Linked in Light.', tagline_ar: 'روابط من الضوء.',
+        type_en: 'Chain Bracelet', type_ar: 'سوار سلسلة',
+        summary_en: '~1.2 ct · 18K Yellow Gold', summary_ar: '~1.2 قيراط · ذهب أصفر عيار 18',
+        description_en: 'A fluid chain of diamond-set links drapes elegantly across the wrist, each link individually set with brilliant-cut diamonds for uninterrupted sparkle. Modern, tactile, and endlessly wearable — from desk to evening in one motion.',
+        description_ar: 'سلسلة سلسة من الحلقات المرصعة بالألماس تنسدل بأناقة على المعصم، وتحمل كل حلقة ألماساً لامعاً يمنح توهجاً متواصلاً. تصميم عصري وسهل الارتداء يرافقك من النهار إلى المساء.',
+        specs: [
+          { l: 'Total Carat Weight', la: 'الوزن الإجمالي بالقيراط', v: '~1.2 ct', va: '~1.2 قيراط' },
+          { l: 'Setting', la: 'التثبيت', v: 'Link Chain', va: 'سلسلة حلقات' },
+          { l: 'Metal', la: 'المعدن', v: '18K Yellow Gold', va: 'ذهب أصفر عيار 18' },
+          { l: 'Length', la: 'الطول', v: '17 cm (adjustable)', va: '17 سم (قابل للتعديل)' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Chains Bracelet (18K Yellow Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بسوار The Chains Bracelet (ذهب أصفر عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      triHeart: {
+        id: 'triHeart', image: 'tri.jpeg', categoryKey: 'necklaces', featured: false,
+        name_en: 'The Tri-Heart Necklace', name_ar: 'قلادة القلوب الثلاثة',
+        tagline_en: 'Three Hearts, One Devotion.', tagline_ar: 'ثلاثة قلوب، حبٌ واحد.',
+        type_en: 'Pendant Necklace', type_ar: 'قلادة',
+        summary_en: '3 Hearts · ~0.45 ct · 18K White Gold', summary_ar: '3 قلوب · ~0.45 قيراط · ذهب أبيض عيار 18',
+        description_en: 'Three diamond-set hearts cascade along a delicate 18-karat chain, each stone catching the light as it moves. A sentimental silhouette rendered in fine brilliance — timeless enough for everyday, meaningful enough for milestones.',
+        description_ar: 'ثلاثة قلوب مرصعة بالألماس تتدلى على سلسلة رفيعة من الذهب عيار 18، ويعكس كل حجر الضوء مع كل حركة. تصميم عاطفي بلمسة من البريق الفاخر، مثالي للارتداء اليومي وللمناسبات الخاصة.',
+        specs: [
+          { l: 'Diamond Count', la: 'عدد الألماس', v: '3 Hearts', va: '3 قلوب' },
+          { l: 'Total Carat Weight', la: 'الوزن الإجمالي', v: '~0.45 ct', va: '~0.45 قيراط' },
+          { l: 'Chain Length', la: 'طول السلسلة', v: '42 cm + 5 cm extender', va: '42 سم + امتداد 5 سم' },
+          { l: 'Metal', la: 'المعدن', v: '18K White Gold', va: 'ذهب أبيض عيار 18' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Tri-Heart Necklace (~0.45ct · 18K White Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بقلادة The Tri-Heart Necklace (~0.45 قيراط · ذهب أبيض عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      celestialCollection: {
+        id: 'celestialCollection', image: 'celestial.jpeg', categoryKey: 'sets', featured: false,
+        name_en: 'The Celestial Cluster Collection', name_ar: 'مجموعة سيليستيال كلستر',
+        tagline_en: 'A Constellation, Complete.', tagline_ar: 'كوكبة مكتملة.',
+        type_en: 'Jewelry Set', type_ar: 'طقم مجوهرات',
+        summary_en: 'Ring, Earrings & Pendant · 18K White Gold', summary_ar: 'خاتم وأقراط وقلادة · ذهب أبيض عيار 18',
+        description_en: 'A coordinated ring, earrings, and pendant united by the same cluster of round brilliants, designed to be worn together or apart. Each piece echoes the same celestial rhythm — for the woman who wants her diamonds to tell one continuous story.',
+        description_ar: 'طقم متكامل من خاتم وأقراط وقلادة، تجمعها مجموعة واحدة من الألماس المستدير اللامع، صُممت لتُرتدى معاً أو بشكل منفصل. تحمل كل قطعة الإيقاع الفاخر نفسه، لتحكي قصة واحدة متصلة من البريق.',
+        specs: [
+          { l: 'Pieces Included', la: 'القطع المرفقة', v: 'Ring, Earrings, Pendant', va: 'خاتم، أقراط، قلادة' },
+          { l: 'Total Carat Weight', la: 'الوزن الإجمالي', v: '~1.8 ct', va: '~1.8 قيراط' },
+          { l: 'Setting', la: 'التثبيت', v: 'Cluster Pavé', va: 'تجميع مرصع' },
+          { l: 'Metal', la: 'المعدن', v: '18K White Gold', va: 'ذهب أبيض عيار 18' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified (each piece)', va: 'معتمد من IGI (لكل قطعة)' },
+        ],
+        wa_en: "Hello, I'm interested in The Celestial Cluster Collection (Ring, Earrings & Pendant · 18K White Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بمجموعة The Celestial Cluster Collection (خاتم وأقراط وقلادة · ذهب أبيض عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      celestialCluster: {
+        id: 'celestialCluster', image: 'cluster.jpeg', categoryKey: 'rings', featured: false,
+        name_en: 'The Celestial Cluster', name_ar: 'خاتم سيليستيال كلستر',
+        tagline_en: 'Light, Clustered.', tagline_ar: 'بريق متجمّع.',
+        type_en: 'Cluster Ring', type_ar: 'خاتم مجمّع',
+        summary_en: '~1 ct Cluster · 18K White Gold', summary_ar: '~1 قيراط تجميع · ذهب أبيض عيار 18',
+        description_en: 'A cluster of round-brilliant diamonds forms a single luminous bloom at the center of the finger, set in 18-karat white gold for maximum sparkle from every angle. Substantial presence, secure comfort — a statement ring that never feels heavy.',
+        description_ar: 'تتجمع مجموعة من الألماس المستدير اللامع لتشكل تألقاً واحداً في مركز الإصبع، مرصعة بذهب أبيض عيار 18 لأقصى بريق من كل زاوية. حضور لافت وراحة تامة في الارتداء.',
+        specs: [
+          { l: 'Total Carat Weight', la: 'الوزن الإجمالي', v: '~1 ct', va: '~1 قيراط' },
+          { l: 'Setting', la: 'التثبيت', v: 'Cluster Pavé', va: 'تجميع مرصع' },
+          { l: 'Shank', la: 'الحزام', v: 'Polished Band', va: 'حزام مصقول' },
+          { l: 'Metal', la: 'المعدن', v: '18K White Gold', va: 'ذهب أبيض عيار 18' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Celestial Cluster ring (~1ct · 18K White Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بخاتم The Celestial Cluster (~1 قيراط · ذهب أبيض عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      ovalEternal: {
+        id: 'ovalEternal', image: 'oval.jpeg', categoryKey: 'sets', featured: false,
+        name_en: 'The Oval Eternal Set', name_ar: 'طقم أوفال إترنال',
+        tagline_en: 'An Eternal Silhouette.', tagline_ar: 'شكل أبدي خالد.',
+        type_en: 'Ring Set', type_ar: 'طقم خواتم',
+        summary_en: '1 ct Oval + Eternity Band · 18K White Gold', summary_ar: '1 قيراط بيضاوي + خاتم إترنتي · ذهب أبيض عيار 18',
+        description_en: 'An oval-cut centre stone paired with a matching eternity band, designed as a coordinated set from the first sketch. The elongated cut flatters every hand while the band continues its brilliance in an unbroken circle.',
+        description_ar: 'حجر مركزي بقصة بيضاوية يقترن بخاتم إترنتي متناسق، صُمم الطقم كوحدة واحدة منذ اللحظة الأولى. تُبرز القصة الممدودة جمال اليد بينما يواصل الخاتم بريقه في دائرة متصلة.',
+        specs: [
+          { l: 'Centre Stone', la: 'الحجر المركزي', v: '1 ct Oval-Cut', va: '1 قيراط قصة بيضاوية' },
+          { l: 'Band', la: 'الخاتم المرافق', v: 'Full Eternity, ~0.8 ct', va: 'إترنتي كاملة، ~0.8 قيراط' },
+          { l: 'Setting', la: 'التثبيت', v: '4-Prong + Shared Prong', va: '4 مخالب + مخالب مشتركة' },
+          { l: 'Metal', la: 'المعدن', v: '18K White Gold', va: 'ذهب أبيض عيار 18' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Oval Eternal Set (1ct Oval + Eternity Band · 18K White Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بطقم The Oval Eternal Set (1 قيراط بيضاوي + خاتم إترنتي · ذهب أبيض عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+      signatureBracelet: {
+        id: 'signatureBracelet', image: 'signature.jpeg', categoryKey: 'bracelets', featured: false,
+        name_en: 'The Signature Bracelet', name_ar: 'سوار سيغنتشر',
+        tagline_en: 'The One You Reach For.', tagline_ar: 'الخيار الذي تلجأين إليه دائماً.',
+        type_en: 'Tennis Bracelet', type_ar: 'سوار تنس',
+        summary_en: '~3 ct Tennis Line · 18K White Gold', summary_ar: '~3 قيراط خط تنس · ذهب أبيض عيار 18',
+        description_en: "A tennis-style line of matched round brilliants wraps the wrist in continuous fire, secured by a hidden safety clasp. The house's most requested bracelet — quietly luxurious, effortlessly everyday.",
+        description_ar: 'خط متواصل من الألماس المستدير المتناسق يحيط بالمعصم ببريق لا ينقطع، مثبت بقفل أمان خفي. السوار الأكثر طلباً في دارنا، فخامة هادئة تناسب كل يوم.',
+        specs: [
+          { l: 'Total Carat Weight', la: 'الوزن الإجمالي', v: '~3 ct', va: '~3 قيراط' },
+          { l: 'Setting', la: 'التثبيت', v: '4-Prong Line', va: 'خط 4 مخالب' },
+          { l: 'Clasp', la: 'القفل', v: 'Hidden Safety Clasp', va: 'قفل أمان مخفي' },
+          { l: 'Metal', la: 'المعدن', v: '18K White Gold', va: 'ذهب أبيض عيار 18' },
+          { l: 'Certification', la: 'الشهادة', v: 'IGI Certified', va: 'معتمد من IGI' },
+        ],
+        wa_en: "Hello, I'm interested in The Signature Bracelet (~3ct Tennis Line · 18K White Gold). Please share availability and pricing.",
+        wa_ar: "مرحباً، أنا مهتمة بسوار The Signature Bracelet (~3 قيراط خط تنس · ذهب أبيض عيار 18). يرجى إرسال التوفر والسعر.",
+      },
+    };
+
+    function waLink(msg) {
+      return 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+    }
+
+    /* ══════════════════════════════════════════════════
+       RENDER: STATIC TEXT
+       ══════════════════════════════════════════════════ */
+    function applyStaticTranslations() {
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        el.textContent = t(el.getAttribute('data-i18n'));
+      });
+      var heroLink = document.getElementById('hero-inquire-link');
+      if (heroLink) heroLink.href = waLink(t('genericWaMessage'));
+    }
+
+    function renderHeroTitle() {
+      var el = document.getElementById('hero-title');
+      if (!el) return;
+      el.innerHTML = t('heroLine1') + '<br />' +
+        '<em style="color:var(--gold);font-style:italic;">' + t('heroLine2') + '</em><br />' +
+        t('heroLine3');
+    }
+
+    function renderPromiseHeading() {
+      var el = document.getElementById('promise-heading');
+      if (!el) return;
+      el.innerHTML = t('promiseHeadingPre') +
+        '<em style="color:var(--gold);">' + t('promiseHeadingWord1') + '</em>' +
+        t('promiseHeadingMid') +
+        '<em style="color:var(--gold);">' + t('promiseHeadingWord2') + '</em>';
+    }
+
+    function updateLangButtons() {
+      ['lang-btn-en', 'lang-btn-en-m'].forEach(function (id) {
+        var b = document.getElementById(id);
+        if (b) b.classList.toggle('lang-active', currentLang === 'en');
+      });
+      ['lang-btn-ar', 'lang-btn-ar-m'].forEach(function (id) {
+        var b = document.getElementById(id);
+        if (b) b.classList.toggle('lang-active', currentLang === 'ar');
+      });
+    }
+
+    /* ══════════════════════════════════════════════════
+       RENDER: CATEGORY FILTERS
+       ══════════════════════════════════════════════════ */
+    function renderCategoryFilters() {
+      var wrap = document.getElementById('category-filters');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      categories.forEach(function (c) {
+        var btn = document.createElement('button');
+        btn.className = 'cat-btn' + (currentCategoryFilter === c.key ? ' cat-active' : '');
+        btn.textContent = t(c.labelKey);
+        btn.onclick = function () { filterCategory(c.key); };
+        wrap.appendChild(btn);
+      });
+    }
+
+    function filterCategory(key) {
+      currentCategoryFilter = key;
+      renderCategoryFilters();
+      renderCollectionGrid();
+    }
+
+    /* ══════════════════════════════════════════════════
+       RENDER: PRODUCT CARDS
+       ══════════════════════════════════════════════════ */
+    function buildCollectionCard(p) {
+      var card = document.createElement('div');
+      card.className = 'product-card';
+      card.onclick = function () { showProduct(p.id); };
+      card.innerHTML =
+        '<div class="img-wrap"><img src="' + p.image + '" alt="' + (currentLang === 'ar' ? p.name_ar : p.name_en) + '" loading="lazy" /></div>' +
+        '<div class="p-6">' +
+          '<div class="flex items-center gap-2 mb-2">' +
+            '<div class="diamond-icon" style="width:5px;height:5px;"></div>' +
+            '<span style="font-family:\'Jost\',sans-serif;font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(201,168,76,0.48);">' + (currentLang === 'ar' ? p.type_ar : p.type_en) + '</span>' +
+          '</div>' +
+          '<h3 style="font-family:\'Cormorant Garamond\',serif;font-weight:400;font-size:1.4rem;color:var(--cream);margin-bottom:0.75rem;">' + (currentLang === 'ar' ? p.name_ar : p.name_en) + '</h3>' +
+          '<div style="height:1px;background:rgba(201,168,76,0.11);margin-bottom:0.75rem;"></div>' +
+          '<p style="font-family:\'Jost\',sans-serif;font-weight:200;font-size:0.75rem;color:rgba(201,168,76,0.58);line-height:1.7;">' + (currentLang === 'ar' ? p.summary_ar : p.summary_en) + '</p>' +
+          '<div class="mt-4 flex items-center gap-1" style="color:rgba(201,168,76,0.48);font-family:\'Jost\',sans-serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;">' +
+            t('viewDetails') +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
+          '</div>' +
+        '</div>';
+      return card;
+    }
+
+    function buildCustomCard() {
+      var card = document.createElement('div');
+      card.className = 'product-card flex flex-col items-center justify-center p-8 text-center';
+      card.style.minHeight = '320px';
+      card.style.cursor = 'default';
+      card.style.borderStyle = 'dashed';
+      card.innerHTML =
+        '<div style="width:48px;height:48px;border:1px solid rgba(201,168,76,0.24);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold);"><path d="M12 5v14M5 12h14"/></svg>' +
+        '</div>' +
+        '<h3 style="font-family:\'Cormorant Garamond\',serif;font-weight:400;font-size:1.3rem;color:var(--cream);margin-bottom:0.5rem;">' + t('customTitle') + '</h3>' +
+        '<p style="font-family:\'Jost\',sans-serif;font-weight:200;font-size:0.75rem;color:rgba(250,247,240,0.42);margin-bottom:1.5rem;line-height:1.8;">' + t('customDesc') + '</p>' +
+        '<a href="' + waLink(t('customWaMessage')) + '" target="_blank" class="wa-btn" style="font-size:0.62rem;padding:0.7rem 1.5rem;">' + t('customBtn') + '</a>';
+      return card;
+    }
+
+    function renderCollectionGrid() {
+      var grid = document.getElementById('collection-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      Object.values(products)
+        .filter(function (p) { return currentCategoryFilter === 'all' || p.categoryKey === currentCategoryFilter; })
+        .forEach(function (p) { grid.appendChild(buildCollectionCard(p)); });
+      grid.appendChild(buildCustomCard());
+    }
+
+    function buildFeaturedCard(p) {
+      var card = document.createElement('div');
+      card.className = 'product-card';
+      card.onclick = function () { showProduct(p.id); };
+      card.innerHTML =
+        '<div class="img-wrap"><img src="' + p.image + '" alt="' + (currentLang === 'ar' ? p.name_ar : p.name_en) + '" loading="lazy" /></div>' +
+        '<div class="p-5">' +
+          '<p class="keep-latin" style="font-family:\'Jost\',sans-serif;font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(201,168,76,0.52);margin-bottom:0.35rem;">' + t('brandLabel') + '</p>' +
+          '<h3 style="font-family:\'Cormorant Garamond\',serif;font-weight:400;font-size:1.25rem;color:var(--cream);">' + (currentLang === 'ar' ? p.name_ar : p.name_en) + '</h3>' +
+          '<div style="height:1px;background:rgba(201,168,76,0.14);margin:0.75rem 0;"></div>' +
+          '<p style="font-family:\'Jost\',sans-serif;font-weight:200;font-size:0.72rem;color:rgba(201,168,76,0.58);letter-spacing:0.05em;">' + (currentLang === 'ar' ? p.summary_ar : p.summary_en) + '</p>' +
+        '</div>';
+      return card;
+    }
+
+    function renderFeatured() {
+      var grid = document.getElementById('featured-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      Object.values(products).filter(function (p) { return p.featured; }).forEach(function (p) {
+        grid.appendChild(buildFeaturedCard(p));
+      });
+    }
+
+    /* ══════════════════════════════════════════════════
+       RENDER: PRODUCT DETAIL VIEWS
+       ══════════════════════════════════════════════════ */
+    function buildProductViews() {
+      var container = document.getElementById('product-views-container');
+      container.innerHTML = '';
+      Object.values(products).forEach(function (p) {
+        var name = currentLang === 'ar' ? p.name_ar : p.name_en;
+        var tagline = currentLang === 'ar' ? p.tagline_ar : p.tagline_en;
+        var type = currentLang === 'ar' ? p.type_ar : p.type_en;
+        var description = currentLang === 'ar' ? p.description_ar : p.description_en;
+        var waMsg = currentLang === 'ar' ? p.wa_ar : p.wa_en;
+
+        var specsHtml = p.specs.map(function (s, i) {
+          var label = currentLang === 'ar' ? s.la : s.l;
+          var value = currentLang === 'ar' ? s.va : s.v;
+          var borderStyle = i < p.specs.length - 1 ? 'border-bottom:1px solid rgba(201,168,76,0.06);' : '';
+          return '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.7rem 1rem;' + borderStyle + '">' +
+            '<span style="font-family:\'Jost\',sans-serif;font-weight:200;font-size:0.75rem;color:rgba(250,247,240,0.38);letter-spacing:0.05em;">' + label + '</span>' +
+            '<span style="font-family:\'Cormorant Garamond\',serif;font-size:0.95rem;color:rgba(201,168,76,0.78);">' + value + '</span>' +
+          '</div>';
+        }).join('');
+
+        var div = document.createElement('div');
+        div.id = 'view-product-' + p.id;
+        div.className = 'view';
+        div.innerHTML =
+          '<div style="min-height:100vh;padding-top:80px;">' +
+            '<div style="background:rgba(0,13,10,0.85);border-bottom:1px solid rgba(201,168,76,0.1);padding:1rem 1.5rem;">' +
+              '<div class="max-w-6xl mx-auto flex items-center justify-between">' +
+                '<button class="back-btn" onclick="showView(\'collection\')">' +
+                  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>' +
+                  t('backToCollection') +
+                '</button>' +
+                '<span style="font-family:\'Jost\',sans-serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,168,76,0.38);">' + type + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="max-w-6xl mx-auto px-6 py-16">' +
+              '<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">' +
+                '<div class="deco-frame" style="position:relative;">' +
+                  '<div class="corner-br"></div><div class="corner-tl"></div>' +
+                  '<div style="padding:12px;"><img src="' + p.image + '" alt="' + name + '" class="product-detail-img" style="display:block;" /></div>' +
+                  '<div style="position:absolute;bottom:20px;' + (currentLang === 'ar' ? 'right' : 'left') + ':20px;background:rgba(0,13,10,0.92);border:1px solid rgba(201,168,76,0.28);padding:0.4rem 0.8rem;">' +
+                    '<span style="font-family:\'Jost\',sans-serif;font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);">' + t('igiCertifiedBadge') + '</span>' +
+                  '</div>' +
+                '</div>' +
+                '<div>' +
+                  '<p class="keep-latin" style="font-family:\'Jost\',sans-serif;font-size:0.58rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(201,168,76,0.48);margin-bottom:0.75rem;">Diamond Lab by Dr. Sara</p>' +
+                  '<h1 style="font-family:\'Cormorant Garamond\',serif;font-weight:300;font-size:clamp(2rem,4vw,3.2rem);color:var(--cream);line-height:1.2;margin-bottom:0.6rem;">' + name + '</h1>' +
+                  '<p style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:1.1rem;color:rgba(201,168,76,0.68);margin-bottom:1.5rem;">' + tagline + '</p>' +
+                  '<div class="gold-line" style="margin:0 0 2rem 0;"></div>' +
+                  '<p style="font-family:\'Jost\',sans-serif;font-weight:200;font-size:0.85rem;color:rgba(250,247,240,0.52);line-height:2;margin-bottom:2rem;">' + description + '</p>' +
+                  '<div style="border:1px solid rgba(201,168,76,0.14);margin-bottom:2rem;">' +
+                    '<div style="padding:0.75rem 1rem;border-bottom:1px solid rgba(201,168,76,0.09);background:rgba(26,74,56,0.18);">' +
+                      '<span style="font-family:\'Jost\',sans-serif;font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(201,168,76,0.48);">' + t('specifications') + '</span>' +
+                    '</div>' +
+                    specsHtml +
+                  '</div>' +
+                  '<div class="flex flex-col sm:flex-row gap-3">' +
+                    '<a href="' + waLink(waMsg) + '" target="_blank" rel="noopener" class="wa-btn" style="justify-content:center;">' +
+                      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' +
+                      t('inquireWhatsapp') +
+                    '</a>' +
+                    '<a href="https://www.instagram.com/diamond.lab.official" target="_blank" rel="noopener" class="keep-latin" ' +
+                       'style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;border:1px solid rgba(201,168,76,0.22);padding:0.85rem 1.8rem;font-family:\'Jost\',sans-serif;font-weight:300;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,168,76,0.68);text-decoration:none;transition:all 0.3s;" ' +
+                       'onmouseover="this.style.borderColor=\'rgba(201,168,76,0.5)\';this.style.color=\'var(--gold)\'" ' +
+                       'onmouseout="this.style.borderColor=\'rgba(201,168,76,0.22)\';this.style.color=\'rgba(201,168,76,0.68)\'">' +
+                      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>' +
+                      t('followInstagram') +
+                    '</a>' +
+                  '</div>' +
+                  '<p style="font-family:\'Jost\',sans-serif;font-weight:200;font-size:0.68rem;color:rgba(250,247,240,0.22);margin-top:1.5rem;letter-spacing:0.05em;">' + t('madeToOrder') + '</p>' +
+                '</div>' +
+              '</div>' +
+              '<div style="margin-top:5rem;">' +
+                '<div class="text-center mb-10">' +
+                  '<p style="font-family:\'Jost\',sans-serif;font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(201,168,76,0.42);margin-bottom:0.5rem;">' + t('continueBrowsing') + '</p>' +
+                  '<h3 style="font-family:\'Cormorant Garamond\',serif;font-weight:300;font-size:1.8rem;color:var(--cream);">' + t('youMayAlsoLove') + '</h3>' +
+                  '<div class="gold-line mt-3"></div>' +
+                '</div>' +
+                '<div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="related-' + p.id + '"></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        container.appendChild(div);
+      });
+
+      /* Populate related products: same category first, then others */
+      Object.keys(products).forEach(function (key) {
+        var related = document.getElementById('related-' + key);
+        if (!related) return;
+        var current = products[key];
+        var others = Object.values(products).filter(function (p) { return p.id !== key; });
+        var sameCategory = others.filter(function (p) { return p.categoryKey === current.categoryKey; });
+        var rest = others.filter(function (p) { return p.categoryKey !== current.categoryKey; });
+        sameCategory.concat(rest).slice(0, 4).forEach(function (rp) {
+          var card = document.createElement('div');
+          card.className = 'product-card';
+          card.onclick = function () { showProduct(rp.id); };
+          card.innerHTML =
+            '<div class="img-wrap"><img src="' + rp.image + '" alt="' + (currentLang === 'ar' ? rp.name_ar : rp.name_en) + '" loading="lazy" /></div>' +
+            '<div style="padding:0.75rem;">' +
+              '<p style="font-family:\'Cormorant Garamond\',serif;font-size:0.95rem;color:var(--cream);">' + (currentLang === 'ar' ? rp.name_ar : rp.name_en) + '</p>' +
+              '<p style="font-family:\'Jost\',sans-serif;font-weight:200;font-size:0.65rem;color:rgba(201,168,76,0.52);margin-top:0.2rem;">' + (currentLang === 'ar' ? rp.type_ar : rp.type_en) + '</p>' +
+            '</div>';
+          related.appendChild(card);
+        });
+      });
+    }
+
+    /* ══════════════════════════════════════════════════
+       VIEW MANAGEMENT
+       ══════════════════════════════════════════════════ */
+    function allViewNames() {
+      return ['home', 'collection'].concat(Object.keys(products).map(function (k) { return 'product-' + k; }));
+    }
+
+    function showView(viewName, skipScroll) {
+      currentView = viewName;
+      allViewNames().forEach(function (v) {
+        var el = document.getElementById('view-' + v);
+        if (el) el.classList.remove('active');
+      });
+      var target = document.getElementById('view-' + viewName);
+      if (target) {
+        target.classList.add('active');
+        if (!skipScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      document.querySelectorAll('.nav-link').forEach(function (l) { l.classList.remove('active-nav'); });
+      if (viewName === 'home') { var h = document.getElementById('nav-home'); if (h) h.classList.add('active-nav'); }
+      if (viewName === 'collection') { var c = document.getElementById('nav-collection'); if (c) c.classList.add('active-nav'); }
+    }
+
+    function showProduct(productId) {
+      showView('product-' + productId);
+    }
+
+    /* ── Mobile menu ── */
+    function toggleMobile() {
+      document.getElementById('mobile-menu').classList.toggle('open');
+    }
+
+    /* ══════════════════════════════════════════════════
+       LANGUAGE SWITCHING
+       ══════════════════════════════════════════════════ */
+    function setLanguage(lang) {
+      currentLang = lang;
+      try { localStorage.setItem('dlLang', lang); } catch (e) {}
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+      applyStaticTranslations();
+      renderHeroTitle();
+      renderPromiseHeading();
+      renderCategoryFilters();
+      renderCollectionGrid();
+      renderFeatured();
+      buildProductViews();
+      updateLangButtons();
+
+      showView(currentView, true);
+    }
+
+    /* ── Gold particle system ── */
+    function initParticles() {
+      var container = document.getElementById('particles');
+      if (!container) return;
+      for (var i = 0; i < 30; i++) {
+        var p = document.createElement('div');
+        p.className = 'particle';
+        var x = Math.random() * 100;
+        var size = Math.random() * 3 + 1;
+        var delay = Math.random() * 8;
+        var duration = Math.random() * 8 + 6;
+        p.style.cssText = 'left:' + x + '%;bottom:' + (Math.random() * 50) + '%;width:' + size + 'px;height:' + size + 'px;animation-duration:' + duration + 's;animation-delay:' + delay + 's;';
+        container.appendChild(p);
+      }
+    }
+
+    /* ── Init ── */
+    document.addEventListener('DOMContentLoaded', function () {
+      initParticles();
+      setLanguage(currentLang);
+      showView('home');
+    });
+  </script>
+
+</body>
+</html>
